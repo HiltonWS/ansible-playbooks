@@ -22,11 +22,40 @@
       local_action: wait_for host=localhost port=22 delay=60 state=started
       when: restarted.changed
 
+- hosts: hiveos
+  tasks:
+  
+  - name: Selfupgrade
+    become: yes
+    command: "selfupgrade"
+  
+  - name: Reboot
+    become: yes
+    command: "sreboot"
+    async: 1
+    poll: 0
+    ignore_errors: true
+
+- hosts: hiveos
+  gather_facts: no
+  tasks:
+    - name: Wait for the host to come back
+      local_action:
+        module: wait_for
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 60
+        timeout: 300
+        state: started
+      delegate_to: localhost
+
 - hosts: openwrt
   tasks:
   
   - name: Upgrade System Packages
-    command: "opkg update && 'opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade'"
+    shell: |
+      opkg update
+      opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade
 
   - name: Reboot
     command: reboot
