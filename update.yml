@@ -1,4 +1,6 @@
 - hosts: rspi4
+  vars:
+    ansible_ssh_timeout: 30
   tasks:
 
     - name: Update System Package Cache
@@ -23,6 +25,8 @@
       when: restarted.changed
 
 - hosts: hiveos
+  vars:
+    ansible_ssh_timeout: 30
   tasks:
   
   - name: Selfupgrade
@@ -50,6 +54,8 @@
       delegate_to: localhost
 
 - hosts: openwrt
+  vars:
+    ansible_ssh_timeout: 30
   tasks:
   
   - name: Upgrade System Packages
